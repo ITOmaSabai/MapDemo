@@ -8,6 +8,8 @@ const PostSpotForm = ({ onSubmit }) => {
   const [description, setDescription] = useState('');
   const [latitude, setLatitude] = useState(markers ? markers.lat : '');
   const [longitude, setLongitude] = useState(markers ? markers.lng : '');
+  const [addressComponents, setAddressComponents] = useState('');
+  const [formattedAddres, setFormattedAddres] = useState('');
 
   // markersが変更されたときに実行される
   useEffect(() => {
@@ -19,17 +21,24 @@ const PostSpotForm = ({ onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await postSpotData(name, description, latitude, longitude);
+    await postSpotData(name, description, latitude, longitude, addressComponents, formattedAddres );
   };
 
-  const postSpotData = async (name, description, latitude, longitude) => {
+  const postSpotData = async (name, description, latitude, longitude, addressComponents, formattedAddres) => {
     try {
       const response = await fetch('/api/v1/maps', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ map: {name: name, description: description, lat: latitude, lng: longitude } }),
+        body: JSON.stringify({ map: {
+          name: name, 
+          description: description, 
+          lat: latitude, 
+          lng: longitude,
+          address_components: addressComponents,
+          formatted_addres: formattedAddres
+        } }),
       });
       if (!response.ok) {
         throw new Error('データの送信に失敗しました');
@@ -43,7 +52,13 @@ const PostSpotForm = ({ onSubmit }) => {
 
   return (
     <div>
-    <ReverseGeocodingComponent lat={latitude} lng={longitude}></ReverseGeocodingComponent>
+      <ReverseGeocodingComponent
+        lat={latitude}
+        lng={longitude}
+        onSetAddressComponentsChange={setAddressComponents}
+        onSetFormattedAddressChange={setFormattedAddres}
+      >
+      </ReverseGeocodingComponent>
 
     <form onSubmit={handleSubmit}>
       <div>
@@ -76,6 +91,14 @@ const PostSpotForm = ({ onSubmit }) => {
           value={longitude}
           name="longitude"
         />
+      </div>
+      <div>
+        {/* <label>address_components:</label> */}
+        {/* <input
+          type="hidden"
+          value={addressComponents}
+          name="addressComponents"
+        /> */}
       </div>
       <button type="submit">ピンを追加</button>
     </form>
