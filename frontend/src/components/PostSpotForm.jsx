@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import SpotContext from '../contexts/SpotContext';
 import ReverseGeocodingComponent from './ReverseGeocodingComponent';
+import { useDataPosted } from '../contexts/DataPostedContext';
 
 const PostSpotForm = ({ onSubmit }) => {
   const { markers } = useContext(SpotContext);
@@ -10,6 +11,7 @@ const PostSpotForm = ({ onSubmit }) => {
   const [longitude, setLongitude] = useState(markers ? markers.lng : '');
   const [addressComponents, setAddressComponents] = useState('');
   const [formattedAddres, setFormattedAddres] = useState('');
+  const { setIsDataPosted } = useDataPosted();
 
   // markersが変更されたときに実行される
   useEffect(() => {
@@ -22,6 +24,7 @@ const PostSpotForm = ({ onSubmit }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await postSpotData(name, description, latitude, longitude, addressComponents, formattedAddres );
+    setIsDataPosted(true);
   };
 
   const postSpotData = async (name, description, latitude, longitude, addressComponents, formattedAddres) => {
